@@ -1,143 +1,148 @@
 """
-matcher.py — Uses Claude API to score each job against Jason's profile
+matcher.py — Rule-based job scorer (no API required, zero cost)
 
-Returns a structured assessment per job:
-{
-    "score":          int (1–10),
-    "should_apply":   bool,
-    "match_reasons":  list[str],   # 3 bullet points explaining fit
-    "resume_variant": str,         # key from config.RESUME_VARIANTS
-    "concern":        str,         # main risk / gap (brief)
-}
+Scores jobs against Jason's profile using keyword matching.
+Good enough to rank and filter — paste any job here for full Claude scoring.
 """
 
-import json
 import logging
-import re
-
-import anthropic
-
-from config import JASON_PROFILE, RESUME_VARIANTS
 
 log = logging.getLogger(__name__)
 
-client = anthropic.Anthropic()      # reads ANTHROPIC_API_KEY from env
+# ── Title keyword tiers ───────────────────────────────────────────────────────
+TITLE_STRONG = [
+    "business operations analyst", "engineering operations analyst",
+    "technical operations analyst", "operations analyst",
+    "ai solutions", "ai analyst", "business systems analyst",
+    "gtm operations", "revenue operations", "sales operations analyst",
+    "data operations", "product operations", "business intelligence analyst",
+]
+TITLE_MODERATE = [
+    "data analyst", "data scientist", "business analyst",
+    "program analyst", "analytics engineer", "reporting analyst", "insights analyst",
+]
+
+# ── Description keywords: positive weights ────────────────────────────────────
+DESC_POSITIVE = {
+    "python": 2, "sql": 2, "tableau": 2, "power bi": 2, "pandas": 2,
+    "etl": 2, "dashboard": 2, "pipeline": 2, "kpi": 2, "airflow": 2,
+    "cross-functional": 2, "stakeholder": 2, "operational efficiency": 2,
+    "business operations": 2, "process improvement": 2,
+    "demand forecasting": 2, "capacity planning": 2,
+    "data quality": 2, "data validation": 2, "reporting": 2,
+    "llm": 1, "ai": 1, "automation": 1, "machine learning": 1,
+    "scikit": 1, "xgboost": 1, "docker": 1, "aws": 1,
+    "google cloud": 1, "excel": 1, "data visualization": 1,
+    "a/b test": 1, "forecasting": 1, "analytics": 1, "insight": 1,
+}
+
+# ── Description keywords: negative weights ────────────────────────────────────
+DESC_NEGATIVE = {
+    "5+ years": -2, "7+ years": -3, "10+ years": -4,
+    "c++": -2, "cuda": -3, "kubernetes": -1,
+    "embedded": -2, "hardware": -2, "phd": -2,
+    "clearance": -2, "secret clearance": -3,
+}
+
+# ── Resume variant map ────────────────────────────────────────────────────────
+VARIANT_MAP = {
+    "business operations": "biz_ops", "engineering operations": "eng_ops",
+    "technical operations": "eng_ops", "operations analyst": "biz_ops",
+    "ai solutions": "ai_solutions", "ai analyst": "ai_solutions",
+    "gtm": "ai_solutions", "revenue operations": "ai_solutions",
+    "sales operations": "ai_solutions", "data scientist": "data_science",
+    "data science": "data_science", "data analyst": "data_analyst",
+    "business analyst": "biz_ops", "business systems": "biz_ops",
+    "business intelligence": "eng_ops",
+}
+
+RESUME_FILES = {
+    "biz_ops":      "Jason_Gu_Qualcomm_BizOpsAnalyst_Color.docx",
+    "eng_ops":      "Jason_Gu_Qualcomm_EngineeringOpsAnalyst_Color.docx",
+    "data_science": "Jason_Gu_Qualcomm_DataScientist_FinanceAI_Color.docx",
+    "ai_solutions": "Jason_Gu_Salesforce_DataAnalyticsSeniorAnalyst_Color.docx",
+    "data_analyst": "Jason_Gu_Disney_DataAnalyst_Color.docx",
+}
 
 
-SYSTEM_PROMPT = f"""You are a job match evaluator for a specific candidate.
-Your job is to score how well each job posting matches the candidate's profile
-and identify which resume variant to use.
-
-{JASON_PROFILE}
-
-RESUME VARIANTS AVAILABLE:
-- biz_ops:       Business Operations Analyst (Qualcomm-style ops roles)
-- eng_ops:       Engineering Operations Analyst (BI + coordination + ops)
-- data_science:  Data Scientist / Finance & Accounting Automation
-- ai_solutions:  AI Solutions / Data Analytics Senior Analyst (Salesforce-style)
-- data_analyst:  Data Analyst (Disney-style consumer data / validation)
-
-SCORING RUBRIC:
-10 — Perfect match: role type, skills, level, location all align
-8–9 — Strong match: core skills align, minor gaps (experience years, location)
-6–7 — Reasonable match: worth applying, some tailoring needed
-4–5 — Stretch: possible but significant gaps
-1–3 — Poor fit: wrong domain, too senior, or missing core requirements
-
-ALWAYS return valid JSON only. No preamble, no markdown, no explanation outside the JSON.
-"""
-
-USER_TEMPLATE = """Score this job for the candidate:
-
-COMPANY: {company}
-TITLE: {title}
-LOCATION: {location}
-POSTED: {posted_date}
-DESCRIPTION:
-{description}
-
-Return ONLY this JSON object:
-{{
-  "score": <1-10 integer>,
-  "should_apply": <true|false>,
-  "match_reasons": [
-    "<specific reason 1 tied to candidate's actual experience>",
-    "<specific reason 2>",
-    "<specific reason 3>"
-  ],
-  "resume_variant": "<one of: biz_ops | eng_ops | data_science | ai_solutions | data_analyst>",
-  "concern": "<main gap or risk in one sentence, or 'None' if clean match>"
-}}"""
+def _pick_variant(title: str) -> str:
+    t = title.lower()
+    for pattern, variant in VARIANT_MAP.items():
+        if pattern in t:
+            return variant
+    return "biz_ops"
 
 
-def score_job(job: dict) -> dict:
-    """
-    Call Claude API to score a single job.
-    Returns scoring dict or None on failure.
-    """
-    description = job.get("description", "")
-    if len(description) < 50:
-        description = f"Job title: {job['title']} at {job['company']}. Location: {job.get('location', '')}."
+def _score_job(job: dict) -> dict:
+    title    = job.get("title", "").lower()
+    desc     = (job.get("description", "") or "").lower()
+    combined = title + " " + desc
+    score    = 0
+    reasons  = []
 
-    prompt = USER_TEMPLATE.format(
-        company=job["company"],
-        title=job["title"],
-        location=job.get("location", "Not specified"),
-        posted_date=job.get("posted_date", "Unknown"),
-        description=description[:3500],
-    )
+    # Title tier
+    for kw in TITLE_STRONG:
+        if kw in title:
+            score += 4
+            reasons.append(f"Title is a strong match for your target role type")
+            break
+    else:
+        for kw in TITLE_MODERATE:
+            if kw in title:
+                score += 2
+                reasons.append(f"Title is a reasonable fit")
+                break
 
-    try:
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=512,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        raw = message.content[0].text.strip()
+    # Description keywords
+    matched_pos, matched_neg = [], []
+    for kw, pts in DESC_POSITIVE.items():
+        if kw in combined:
+            score += pts
+            matched_pos.append(kw)
+    for kw, pts in DESC_NEGATIVE.items():
+        if kw in combined:
+            score += pts
+            matched_neg.append(kw)
 
-        # Strip any accidental markdown fences
-        raw = re.sub(r"^```json\s*", "", raw)
-        raw = re.sub(r"\s*```$", "", raw)
+    # Build reasons
+    top_skills = [k for k in matched_pos if k in (
+        "python","sql","tableau","power bi","etl","kpi",
+        "dashboard","pipeline","airflow","stakeholder","cross-functional","demand forecasting"
+    )]
+    if top_skills:
+        reasons.append(f"Core skills match: {', '.join(top_skills[:5])}")
 
-        result = json.loads(raw)
+    ops_signals = [k for k in matched_pos if k in (
+        "business operations","operational efficiency","process improvement",
+        "capacity planning","data quality","data validation"
+    )]
+    if ops_signals:
+        reasons.append(f"Ops signals match your Helport/SDG&E background: {', '.join(ops_signals[:3])}")
 
-        # Validate required keys exist
-        assert "score" in result and "match_reasons" in result and "resume_variant" in result
+    if matched_neg:
+        reasons.append(f"⚠️ Watch: {', '.join(matched_neg[:3])}")
 
-        # Map to valid variant key
-        if result["resume_variant"] not in RESUME_VARIANTS:
-            result["resume_variant"] = "biz_ops"   # sensible default
+    if not reasons:
+        reasons.append("Keyword overlap with your technical profile")
 
-        return result
+    score   = max(1, min(10, score))
+    variant = _pick_variant(job.get("title", ""))
 
-    except json.JSONDecodeError as e:
-        log.error("JSON parse failed for job '%s': %s | Raw: %s", job["title"], e, raw[:200])
-        return None
-    except Exception as e:
-        log.error("Claude API error for job '%s': %s", job["title"], e)
-        return None
+    return {
+        **job,
+        "score":          score,
+        "match_reasons":  reasons[:3],
+        "resume_variant": variant,
+        "resume_file":    RESUME_FILES.get(variant, RESUME_FILES["biz_ops"]),
+        "concern":        ", ".join(matched_neg) if matched_neg else "",
+    }
 
 
 def score_jobs_batch(jobs: list[dict], min_score: int = 6) -> list[dict]:
-    """
-    Score a list of jobs. Attaches score data directly to each job dict.
-    Returns only jobs that meet min_score threshold.
-    """
     scored = []
     for job in jobs:
-        log.info("Scoring: %s @ %s ...", job["title"], job["company"])
-        result = score_job(job)
-        if result is None:
-            continue
-
-        job["score"]          = result["score"]
-        job["should_apply"]   = result.get("should_apply", result["score"] >= min_score)
-        job["match_reasons"]  = result.get("match_reasons", [])
-        job["resume_variant"] = result.get("resume_variant", "biz_ops")
-        job["concern"]        = result.get("concern", "")
-
-        if job["score"] >= min_score:
-            scored.append(job)
-
+        result = _score_job(job)
+        log.info("  [%d/10] %s @ %s", result["score"], result["title"], result["company"])
+        if result["score"] >= min_score:
+            scored.append(result)
     return sorted(scored, key=lambda x: x["score"], reverse=True)
