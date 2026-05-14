@@ -1,15 +1,33 @@
 """
 matcher.py — Rule-based job scorer (no API required, zero cost)
-
-Scores jobs against Jason's profile using keyword matching.
-Good enough to rank and filter — paste any job here for full Claude scoring.
+Fixed: location filter, senior title rejection, score calibration, dedup
 """
 
 import logging
 
 log = logging.getLogger(__name__)
 
-# ── Title keyword tiers ───────────────────────────────────────────────────────
+# ── US locations — must match at least one ────────────────────────────────────
+US_STATES = [
+    "california", "ca", "new york", "ny", "texas", "tx", "washington", "wa",
+    "illinois", "il", "massachusetts", "ma", "colorado", "co", "georgia", "ga",
+    "florida", "fl", "oregon", "or", "nevada", "nv", "arizona", "az",
+    "north carolina", "nc", "virginia", "va", "michigan", "mi", "ohio", "oh",
+    "san diego", "san francisco", "los angeles", "seattle", "austin", "boston",
+    "chicago", "denver", "atlanta", "miami", "new york city", "nyc",
+    "remote", "united states", "us ", "usa", "u.s.", "anywhere in the us",
+]
+
+# Non-US locations that should be hard-rejected
+NON_US_SIGNALS = [
+    "gurugram", "india", "dublin", "ireland", "london", "uk", "united kingdom",
+    "mexico city", "mexico", "tbilisi", "georgia, ge", "singapore", "australia",
+    "canada", "toronto", "vancouver", "berlin", "germany", "paris", "france",
+    "amsterdam", "netherlands", "bangalore", "hyderabad", "pune", "chennai",
+    "sydney", "melbourne", "dubai", "uae", "philippines", "manila",
+]
+
+# ── Title tiers ───────────────────────────────────────────────────────────────
 TITLE_STRONG = [
     "business operations analyst", "engineering operations analyst",
     "technical operations analyst", "operations analyst",
@@ -19,28 +37,45 @@ TITLE_STRONG = [
 ]
 TITLE_MODERATE = [
     "data analyst", "data scientist", "business analyst",
-    "program analyst", "analytics engineer", "reporting analyst", "insights analyst",
+    "program analyst", "analytics engineer", "reporting analyst",
+    "insights analyst", "financial analyst",
 ]
 
-# ── Description keywords: positive weights ────────────────────────────────────
+# Auto-reject title prefixes/words
+TITLE_SENIOR_REJECT = [
+    "senior ", "sr.", "sr ", "staff ", "principal ", "lead ",
+    "director", "manager", "head of", "vp ", "vice president",
+    "chief", "president", "partner",
+]
+
+# ── Description keyword weights ───────────────────────────────────────────────
+# Recalibrated — single keyword can't push to 10 alone
 DESC_POSITIVE = {
-    "python": 2, "sql": 2, "tableau": 2, "power bi": 2, "pandas": 2,
-    "etl": 2, "dashboard": 2, "pipeline": 2, "kpi": 2, "airflow": 2,
-    "cross-functional": 2, "stakeholder": 2, "operational efficiency": 2,
-    "business operations": 2, "process improvement": 2,
-    "demand forecasting": 2, "capacity planning": 2,
-    "data quality": 2, "data validation": 2, "reporting": 2,
-    "llm": 1, "ai": 1, "automation": 1, "machine learning": 1,
-    "scikit": 1, "xgboost": 1, "docker": 1, "aws": 1,
-    "google cloud": 1, "excel": 1, "data visualization": 1,
-    "a/b test": 1, "forecasting": 1, "analytics": 1, "insight": 1,
+    # Core technical (1.5 pts each — was 2)
+    "python": 1.5, "sql": 1.5, "tableau": 1.5, "power bi": 1.5,
+    "pandas": 1.5, "etl": 1.5, "airflow": 1.5,
+
+    # Dashboard/pipeline (1 pt each)
+    "dashboard": 1.0, "pipeline": 1.0, "kpi": 1.0, "reporting": 1.0,
+
+    # Role fit signals (1.5 pts each)
+    "cross-functional": 1.5, "stakeholder": 1.0,
+    "operational efficiency": 1.5, "business operations": 1.5,
+    "process improvement": 1.5, "demand forecasting": 1.5,
+    "capacity planning": 1.5, "data quality": 1.5,
+    "data validation": 1.5,
+
+    # Nice to have (0.5 pts)
+    "llm": 0.5, "automation": 0.5, "machine learning": 0.5,
+    "docker": 0.5, "aws": 0.5, "excel": 0.5,
+    "data visualization": 0.5, "a/b test": 0.5,
+    "forecasting": 0.5, "analytics": 0.5, "insight": 0.5,
 }
 
-# ── Description keywords: negative weights ────────────────────────────────────
 DESC_NEGATIVE = {
     "5+ years": -2, "7+ years": -3, "10+ years": -4,
-    "c++": -2, "cuda": -3, "kubernetes": -1,
-    "embedded": -2, "hardware": -2, "phd": -2,
+    "c++": -1.5, "cuda": -3, "kubernetes": -0.5,
+    "embedded": -2, "hardware": -2, "phd required": -3,
     "clearance": -2, "secret clearance": -3,
 }
 
@@ -53,7 +88,7 @@ VARIANT_MAP = {
     "sales operations": "ai_solutions", "data scientist": "data_science",
     "data science": "data_science", "data analyst": "data_analyst",
     "business analyst": "biz_ops", "business systems": "biz_ops",
-    "business intelligence": "eng_ops",
+    "business intelligence": "eng_ops", "financial analyst": "biz_ops",
 }
 
 RESUME_FILES = {
@@ -65,6 +100,31 @@ RESUME_FILES = {
 }
 
 
+def _is_us_location(location: str) -> bool:
+    """True if location is in the US or remote."""
+    if not location:
+        return True     # unknown — let through, score will be lower
+    loc = location.lower()
+
+    # Hard reject non-US first
+    for signal in NON_US_SIGNALS:
+        if signal in loc:
+            return False
+
+    # Must match at least one US signal
+    for state in US_STATES:
+        if state in loc:
+            return True
+
+    # No match — likely international
+    return False
+
+
+def _is_too_senior(title: str) -> bool:
+    t = title.lower()
+    return any(prefix in t for prefix in TITLE_SENIOR_REJECT)
+
+
 def _pick_variant(title: str) -> str:
     t = title.lower()
     for pattern, variant in VARIANT_MAP.items():
@@ -73,23 +133,42 @@ def _pick_variant(title: str) -> str:
     return "biz_ops"
 
 
-def _score_job(job: dict) -> dict:
-    title    = job.get("title", "").lower()
+def _score_job(job: dict) -> dict | None:
+    """
+    Score a job. Returns None if location or seniority check fails.
+    """
+    title    = job.get("title", "")
+    location = job.get("location", "")
+
+    # ── Hard filters ──────────────────────────────────────────────────────────
+    if not _is_us_location(location):
+        log.debug("  [SKIP - non-US] %s @ %s (%s)", title, job["company"], location)
+        return None
+
+    if _is_too_senior(title):
+        log.debug("  [SKIP - senior] %s @ %s", title, job["company"])
+        return None
+
+    # ── Scoring ───────────────────────────────────────────────────────────────
+    title_l  = title.lower()
     desc     = (job.get("description", "") or "").lower()
-    combined = title + " " + desc
-    score    = 0
-    reasons  = []
+    combined = title_l + " " + desc
+
+    score   = 0.0
+    reasons = []
 
     # Title tier
+    strong_hit = False
     for kw in TITLE_STRONG:
-        if kw in title:
-            score += 4
+        if kw in title_l:
+            score += 3.5
+            strong_hit = True
             reasons.append(f"Title is a strong match for your target role type")
             break
-    else:
+    if not strong_hit:
         for kw in TITLE_MODERATE:
-            if kw in title:
-                score += 2
+            if kw in title_l:
+                score += 1.5
                 reasons.append(f"Title is a reasonable fit")
                 break
 
@@ -107,7 +186,8 @@ def _score_job(job: dict) -> dict:
     # Build reasons
     top_skills = [k for k in matched_pos if k in (
         "python","sql","tableau","power bi","etl","kpi",
-        "dashboard","pipeline","airflow","stakeholder","cross-functional","demand forecasting"
+        "dashboard","pipeline","airflow","stakeholder","cross-functional",
+        "demand forecasting","data quality","data validation"
     )]
     if top_skills:
         reasons.append(f"Core skills match: {', '.join(top_skills[:5])}")
@@ -122,11 +202,12 @@ def _score_job(job: dict) -> dict:
     if matched_neg:
         reasons.append(f"⚠️ Watch: {', '.join(matched_neg[:3])}")
 
-    if not reasons:
+    if len(reasons) == 0:
         reasons.append("Keyword overlap with your technical profile")
 
-    score   = max(1, min(10, score))
-    variant = _pick_variant(job.get("title", ""))
+    score = max(1, min(10, round(score)))
+
+    variant = _pick_variant(title)
 
     return {
         **job,
@@ -139,10 +220,31 @@ def _score_job(job: dict) -> dict:
 
 
 def score_jobs_batch(jobs: list[dict], min_score: int = 6) -> list[dict]:
-    scored = []
+    """
+    Score all jobs. Filters non-US and senior roles before scoring.
+    Deduplicates by (company + title) to prevent repeat entries.
+    Returns only jobs meeting min_score, sorted best first.
+    """
+    scored    = []
+    seen_keys = set()
+
     for job in jobs:
         result = _score_job(job)
-        log.info("  [%d/10] %s @ %s", result["score"], result["title"], result["company"])
+        if result is None:
+            continue
+
+        # Deduplicate by company + normalized title
+        dedup_key = f"{result['company'].lower()}|{result['title'].lower().strip()}"
+        if dedup_key in seen_keys:
+            log.debug("  [SKIP - duplicate] %s @ %s", result["title"], result["company"])
+            continue
+        seen_keys.add(dedup_key)
+
+        log.info("  [%d/10] %s @ %s (%s)",
+                 result["score"], result["title"],
+                 result["company"], result.get("location", "?"))
+
         if result["score"] >= min_score:
             scored.append(result)
+
     return sorted(scored, key=lambda x: x["score"], reverse=True)
