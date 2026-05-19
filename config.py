@@ -1,39 +1,26 @@
 """
-Job Hunter Configuration
-All settings, target companies, and Jason's profile live here.
-Edit this file to tune the search without touching any other code.
+Job Hunter Configuration — Jason Gu
 """
 
-# ── Jason's profile (used by Claude API to score each job) ────────────────────
 JASON_PROFILE = """
 CANDIDATE: Jason Gu
 EDUCATION: B.S. Data Science, UC San Diego
-AUTHORIZATION: U.S. Citizen — no sponsorship needed
+AUTHORIZATION: U.S. Citizen
 
-CURRENT ROLE: AI Solutions Engineer / Technical Project Manager
-COMPANY: Helport AI, San Diego CA (July 2025 – Present)
+CURRENT ROLE: AI Solutions Engineer / Technical Project Manager @ Helport AI (July 2025–Present)
 - Managed AI-assisted outbound sales operations across Philippines, Mexico, Bolivia
-- Oversaw 50+ agents across 4 operations managers, 10+ concurrent U.S. SMB clients
+- Oversaw 50+ agents, 4 operations managers, 10+ concurrent U.S. SMB clients
 - Built LLM-powered agent workflow systems for live outbound sales execution
-- Built and maintained performance dashboards tracking conversion rates, call volume,
-  quality metrics, and disposition breakdowns
-- Used data to identify conversion bottlenecks and drive daily operational decisions
+- Built KPI dashboards tracking conversion rates, call volume, quality metrics
 - Cross-functional bridge between executives, clients, offshore leadership, tech systems
 
 PRIOR EXPERIENCE:
-- Data Science Fellow @ San Diego Gas & Electric (Sep 2024 – Mar 2025)
-  → Python + SQL pipelines across 1,100+ EV charger deployments
-  → ML forecasting models (XGBoost, Bayesian inference, regression)
-  → Tableau dashboards for infrastructure planning decisions
-  → Weekly stakeholder reports for technical and non-technical audiences
-- Data Science Intern @ Mercury Alert AI (Jun 2023 – Oct 2023)
-  → Built QA dashboard + automated ETL pipeline (40% error reduction)
-  → AWS QuickSight anomaly detection and reporting
-  → Improved model retraining efficiency by 30% via AWS Lambda
-- Data Analyst Intern @ Redrock Biometrics (Jun 2022 – Sep 2022)
-  → Image processing pipeline with OpenCV/NumPy
-  → KNN model optimization (reduced FNR by 63.6%)
-  → Business strategy analysis in Python, SQL, Tableau
+- Data Science Fellow @ SDG&E: Python/SQL pipelines, 1,100+ EV charger deployments,
+  XGBoost forecasting, Tableau dashboards, weekly stakeholder reports
+- Data Science Intern @ Mercury Alert AI: QA dashboard, ETL pipeline (40% error reduction),
+  AWS QuickSight anomaly detection, AWS Lambda (30% efficiency gain)
+- Data Analyst Intern @ Redrock Biometrics: OpenCV/NumPy pipeline, KNN optimization (FNR -63.6%),
+  Python/SQL/Tableau business strategy analysis
 
 TECHNICAL SKILLS:
 Python, SQL/PostgreSQL, Pandas, NumPy, Scikit-Learn, XGBoost, LightGBM
@@ -41,159 +28,156 @@ Tableau, Power BI, Dash/Plotly, Excel
 Apache Airflow, Docker, AWS, Google Cloud, GitHub
 LLM Integration, AI Agents, Prompt Engineering, NLP, ETL Pipeline Development
 
-BEST FIT ROLES (in priority order):
-1. Business Operations Analyst
-2. Engineering Operations Analyst
-3. Technical Operations Analyst
-4. AI Solutions Engineer / Analyst
-5. GTM / Revenue Operations Analyst
-6. Data Analytics Analyst (ops-focused, not pure research)
-7. Business Systems Analyst
-8. Sales Operations Analyst
-
-LOCATION: San Diego CA preferred, open to relocation or remote
-SALARY TARGET: $70,000+ (no cap)
-
-STRENGTHS TO MATCH AGAINST:
-- Multi-client operational ownership (Helport: 10+ clients simultaneously)
-- KPI/dashboard systems from scratch
-- SQL + Python data pipelines
-- Cross-functional stakeholder communication (technical + non-technical)
-- AI/LLM workflow automation in production
-- ETL pipeline design + data quality
-- Demand forecasting + capacity planning (SDG&E)
+BEST FIT ROLES:
+1. Business / Engineering / Technical Operations Analyst
+2. AI Solutions Engineer / AI Implementation Analyst
+3. Data Analyst (ops-focused)
+4. Forward Deployed Engineer / Solutions Engineer
+5. GTM / Revenue / Sales Operations Analyst
+6. Data Scientist (applied, not research)
+7. Business Systems / Process Automation Analyst
+8. AI/ML Implementation Specialist
 """
 
-# ── Target companies by ATS platform ─────────────────────────────────────────
-# Workday: POST /wday/cxs/{subdomain}/{tenant}/jobs
-# Greenhouse: GET https://boards-api.greenhouse.io/v1/boards/{slug}/jobs
-# Lever: GET https://api.lever.co/v0/postings/{slug}?mode=json
+# ── Target companies ──────────────────────────────────────────────────────────
 
 TARGET_COMPANIES = {
-    "workday": [
-        # subdomain = the part before .myworkdayjobs.com
-        # site_num  = the number in wd5, wd12 etc.
-        # tenant    = the path segment after the subdomain in job URLs
-        {
-            "name": "Qualcomm",
-            "subdomain": "qualcomm",
-            "site_num": "5",
-            "tenant": "qualcomm_career",
-        },
-        {
-            "name": "Disney",
-            "subdomain": "disney",
-            "site_num": "5",
-            "tenant": "disneycareer",
-        },
-        {
-            "name": "Salesforce",
-            "subdomain": "salesforce",
-            "site_num": "12",
-            "tenant": "External_Career_Site",
-        },
-        {
-            "name": "Adobe",
-            "subdomain": "adobe",
-            "site_num": "5",
-            "tenant": "external_corporate",
-        },
-        {
-            "name": "Palo Alto Networks",
-            "subdomain": "paloaltonetworks",
-            "site_num": "1",
-            "tenant": "PaloAltoNetworks",
-        },
-        {
-            "name": "ServiceNow",
-            "subdomain": "servicenow",
-            "site_num": "5",
-            "tenant": "servicenow",
-        },
-        {
-            "name": "Visa",
-            "subdomain": "visa",
-            "site_num": "5",
-            "tenant": "visa",
-        },
-        {
-            "name": "Intuit",
-            "subdomain": "intuit",
-            "site_num": "5",
-            "tenant": "careers",
-        },
-        {
-            "name": "Workday",
-            "subdomain": "workday",
-            "site_num": "5",
-            "tenant": "workday",
-        },
-    ],
     "greenhouse": [
-        {"name": "Databricks",     "slug": "databricks"},
-        {"name": "Discord",        "slug": "discord"},
-        {"name": "Instawork",      "slug": "instawork"},
-        {"name": "GoodLeap",       "slug": "goodleap"},
-        {"name": "Okta",           "slug": "okta"},
-        {"name": "CrowdStrike",    "slug": "crowdstrike"},
-        {"name": "Samsara",        "slug": "samsara"},
-        {"name": "MongoDB",        "slug": "mongodb"},
-        {"name": "Figma",          "slug": "figma"},
-        {"name": "Rippling",       "slug": "rippling"},
-        {"name": "Scale AI",       "slug": "scaleai"},
+        # Core AI / data companies
+        {"name": "Databricks",      "slug": "databricks"},
+        {"name": "Scale AI",        "slug": "scaleai"},
+        {"name": "Hugging Face",    "slug": "huggingface"},
+        {"name": "Cohere",          "slug": "cohere"},
+        {"name": "Weights & Biases","slug": "wandb"},
+        {"name": "Together AI",     "slug": "togetherai"},
+        {"name": "Perplexity AI",   "slug": "perplexityai"},
+        {"name": "Glean",           "slug": "glean"},
+        {"name": "Moveworks",       "slug": "moveworks"},
+        {"name": "Harvey",          "slug": "harvey"},
+        {"name": "Anduril",         "slug": "anduril"},
+        {"name": "Shield AI",       "slug": "shieldai"},
+        # Ops / analytics companies
+        {"name": "Discord",         "slug": "discord"},
+        {"name": "Instawork",       "slug": "instawork"},
+        {"name": "GoodLeap",        "slug": "goodleap"},
+        {"name": "Samsara",         "slug": "samsara"},
+        {"name": "Rippling",        "slug": "rippling"},
+        {"name": "Brex",            "slug": "brex"},
+        {"name": "Ramp",            "slug": "ramp"},
+        {"name": "Retool",          "slug": "retool"},
+        {"name": "Airtable",        "slug": "airtable"},
+        {"name": "Notion",          "slug": "notion"},
+        {"name": "Figma",           "slug": "figma"},
+        {"name": "Loom",            "slug": "loom"},
+        {"name": "Linear",          "slug": "linear"},
+        {"name": "Fivetran",        "slug": "fivetran"},
+        {"name": "dbt Labs",        "slug": "dbtlabs"},
+        {"name": "Airbyte",         "slug": "airbyte"},
+        {"name": "Hightouch",       "slug": "hightouch"},
+        {"name": "Census",          "slug": "census"},
+        # Enterprise / established tech
+        {"name": "Okta",            "slug": "okta"},
+        {"name": "CrowdStrike",     "slug": "crowdstrike"},
+        {"name": "MongoDB",         "slug": "mongodb"},
+        {"name": "Palantir",        "slug": "palantir"},
+        {"name": "Covariant",       "slug": "covariant"},
+        {"name": "Nuro",            "slug": "nuro"},
+        {"name": "Zipline",         "slug": "zipline"},
     ],
     "lever": [
-        {"name": "Stripe",         "slug": "stripe"},
-        {"name": "Thumbtack",      "slug": "thumbtack"},
-        {"name": "ServiceTitan",   "slug": "servicetitan"},
-        {"name": "Carta",          "slug": "carta"},
-        {"name": "OpenAI",         "slug": "openai"},
-        {"name": "Anthropic",      "slug": "anthropic"},
+        {"name": "Stripe",          "slug": "stripe"},
+        {"name": "Thumbtack",       "slug": "thumbtack"},
+        {"name": "ServiceTitan",    "slug": "servicetitan"},
+        {"name": "Carta",           "slug": "carta"},
+        {"name": "OpenAI",          "slug": "openai"},
+        {"name": "Anthropic",       "slug": "anthropic"},
+        {"name": "Mistral AI",      "slug": "mistral"},
+        {"name": "Character AI",    "slug": "characterai"},
+        {"name": "Inflection AI",   "slug": "inflection"},
+        {"name": "Runway",          "slug": "runwayml"},
+        {"name": "Luma AI",         "slug": "lumalabs"},
+        {"name": "Replit",          "slug": "replit"},
+        {"name": "Vercel",          "slug": "vercel"},
+        {"name": "Prefect",         "slug": "prefect"},
+        {"name": "GoodLeap",        "slug": "goodleap"},
+        {"name": "ResMed",          "slug": "resmed"},
+        {"name": "Viasat",          "slug": "viasat"},
+    ],
+    "workday": [
+        {"name": "Qualcomm",         "subdomain": "qualcomm",         "site_num": "5",  "tenant": "qualcomm_career"},
+        {"name": "Disney",           "subdomain": "disney",           "site_num": "5",  "tenant": "disneycareer"},
+        {"name": "Salesforce",       "subdomain": "salesforce",       "site_num": "12", "tenant": "External_Career_Site"},
+        {"name": "Adobe",            "subdomain": "adobe",            "site_num": "5",  "tenant": "external_corporate"},
+        {"name": "Palo Alto Networks","subdomain": "paloaltonetworks","site_num": "1",  "tenant": "PaloAltoNetworks"},
+        {"name": "ServiceNow",       "subdomain": "servicenow",       "site_num": "5",  "tenant": "servicenow"},
+        {"name": "Visa",             "subdomain": "visa",             "site_num": "5",  "tenant": "visa"},
+        {"name": "Intuit",           "subdomain": "intuit",           "site_num": "5",  "tenant": "careers"},
+        {"name": "Nvidia",           "subdomain": "nvidia",           "site_num": "5",  "tenant": "NVIDIAExternalCareerSite"},
+        {"name": "Cisco",            "subdomain": "cisco",            "site_num": "5",  "tenant": "Cisco"},
+        {"name": "Intel",            "subdomain": "intel",            "site_num": "5",  "tenant": "intel"},
+        {"name": "Oracle",           "subdomain": "oracle",           "site_num": "5",  "tenant": "oracle"},
+        {"name": "Uber",             "subdomain": "uber",             "site_num": "5",  "tenant": "uberats"},
+        {"name": "Airbnb",           "subdomain": "airbnb",           "site_num": "5",  "tenant": "Airbnb"},
+        {"name": "DoorDash",         "subdomain": "doordash",         "site_num": "5",  "tenant": "DoorDashUSA"},
+        {"name": "Lyft",             "subdomain": "lyft",             "site_num": "5",  "tenant": "lyft"},
+        {"name": "Snowflake",        "subdomain": "snowflake",        "site_num": "5",  "tenant": "Snowflake"},
+        {"name": "Workday",          "subdomain": "workday",          "site_num": "5",  "tenant": "workday"},
+        {"name": "SAP",              "subdomain": "sap",              "site_num": "5",  "tenant": "SAP"},
+        {"name": "CrowdStrike",      "subdomain": "crowdstrike",      "site_num": "5",  "tenant": "crowdstrike"},
+        {"name": "Okta",             "subdomain": "okta",             "site_num": "5",  "tenant": "okta"},
+        {"name": "Splunk",           "subdomain": "splunk",           "site_num": "5",  "tenant": "splunk"},
+        {"name": "Zendesk",          "subdomain": "zendesk",          "site_num": "5",  "tenant": "zendesk"},
+        {"name": "Atlassian",        "subdomain": "atlassian",        "site_num": "5",  "tenant": "atlassian"},
     ],
 }
 
-# ── Search keywords ───────────────────────────────────────────────────────────
-# For Workday: send one search per keyword batch
-# For Greenhouse/Lever: filter client-side against these
+# ── Search keywords (sent to Workday API) ─────────────────────────────────────
 SEARCH_KEYWORDS = [
-    "business operations analyst",
-    "engineering operations analyst",
-    "technical operations analyst",
     "operations analyst",
+    "business operations",
     "data analyst",
-    "data science",
-    "AI solutions",
-    "business intelligence",
-    "analytics",
+    "AI solutions engineer",
+    "forward deployed engineer",
+    "implementation engineer",
+    "solutions engineer",
+    "data scientist",
+    "analytics engineer",
+    "AI implementation",
     "revenue operations",
     "sales operations",
-    "gtm operations",
-    "AI analyst",
-    "business systems analyst",
-    "program analyst",
+    "business intelligence",
+    "technical operations",
+    "machine learning engineer",
 ]
 
-# Title keywords — job must match at least one (case-insensitive substring)
+# ── Title must contain at least one of these ──────────────────────────────────
 TITLE_INCLUDE_KEYWORDS = [
     "analyst",
     "data science",
     "data scientist",
+    "data engineer",
     "operations",
     "analytics",
     "intelligence",
-    "AI solutions",
-    "AI engineer",
+    "ai solutions",
+    "ai engineer",
+    "ai implementation",
+    "solutions engineer",
+    "forward deployed",
     "implementation",
+    "machine learning",
+    "ml engineer",
 ]
 
-# Title keywords that auto-reject a role (too senior, wrong domain)
+# ── Any of these in the title = auto-reject ───────────────────────────────────
 TITLE_EXCLUDE_KEYWORDS = [
     "principal",
-    "staff",
+    "staff ",
     "director",
     "vp ",
     "vice president",
-    "manager",          # catches "senior manager" but not "management"
+    "manager",
+    "head of",
     "legal",
     "attorney",
     "accountant",
@@ -206,21 +190,25 @@ TITLE_EXCLUDE_KEYWORDS = [
     "electrical",
     "intern",
     "internship",
+    "financial analyst",      # too finance-specific, poor fit
+    "finance analyst",
+    "accounting analyst",
+    "tax analyst",
+    "treasury analyst",
+    "actuary",
 ]
 
-# ── Scoring thresholds ────────────────────────────────────────────────────────
-MIN_MATCH_SCORE = 6          # Only email roles scoring 6+/10
-MAX_YOE_REQUIRED = 5         # Skip roles explicitly requiring 5+ years
-LOOKBACK_DAYS = 7            # Only surface jobs posted within N days
+# ── Thresholds ────────────────────────────────────────────────────────────────
+MIN_MATCH_SCORE  = 6
+MAX_YOE_REQUIRED = 5
+LOOKBACK_DAYS    = 7
 
-# ── Email settings ────────────────────────────────────────────────────────────
-# Set these in your .env file — do not hardcode here
-EMAIL_FROM    = ""           # e.g. jaesongu@gmail.com
-EMAIL_TO      = ""           # e.g. jaesongu@gmail.com
+# ── Email ─────────────────────────────────────────────────────────────────────
+EMAIL_FROM    = ""
+EMAIL_TO      = ""
 EMAIL_SUBJECT = "🎯 New Job Matches — {date} ({count} found)"
 
-# ── Resume variant map ────────────────────────────────────────────────────────
-# Claude API returns one of these keys; email tells you which file to use
+# ── Resume variants ───────────────────────────────────────────────────────────
 RESUME_VARIANTS = {
     "biz_ops":      "Jason_Gu_Qualcomm_BizOpsAnalyst_Color.docx",
     "eng_ops":      "Jason_Gu_Qualcomm_EngineeringOpsAnalyst_Color.docx",
