@@ -201,7 +201,7 @@ TITLE_EXCLUDE_KEYWORDS = [
 # ── Thresholds ────────────────────────────────────────────────────────────────
 MIN_MATCH_SCORE  = 6
 MAX_YOE_REQUIRED = 5
-LOOKBACK_DAYS    = 7
+LOOKBACK_DAYS    = 9   # 9 calendar days = 5 full business days
 
 # ── Email ─────────────────────────────────────────────────────────────────────
 EMAIL_FROM    = ""
