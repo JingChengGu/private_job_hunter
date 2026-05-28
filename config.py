@@ -83,6 +83,30 @@ TARGET_COMPANIES = {
         {"name": "Covariant",       "slug": "covariant"},
         {"name": "Nuro",            "slug": "nuro"},
         {"name": "Zipline",         "slug": "zipline"},
+        # San Diego / domain companies on Greenhouse
+        {"name": "Mendaera",        "slug": "mendaera"},       # surgical robotics, La Jolla
+        {"name": "Axonics",         "slug": "axonics"},        # medical device, Irvine
+        {"name": "Acutus Medical",  "slug": "acutusmedical"},  # cardiac, Carlsbad
+        {"name": "Classy",          "slug": "classy"},         # nonprofit SaaS, San Diego
+        {"name": "Manpower Group",  "slug": "manpowergroup"},  # workforce, SD office
+        {"name": "Woofware",        "slug": "woofware"},
+        {"name": "Vericel",         "slug": "vericel"},
+        {"name": "ServiceMax",      "slug": "servicemax"},     # field service AI
+        {"name": "Artera",          "slug": "artera"},         # healthcare AI, SD
+        {"name": "Oura",            "slug": "ouraring"},       # health wearable
+        {"name": "Hims & Hers",     "slug": "forhims"},        # healthtech
+        {"name": "Lively",          "slug": "lively"},
+        {"name": "Netsmart",        "slug": "netsmart"},
+        {"name": "Accolade",        "slug": "accolade"},       # health navigation
+        {"name": "Solera Health",   "slug": "solerahealth"},
+        {"name": "Collective Health","slug": "collectivehealth"},
+        {"name": "Relativity Space","slug": "relativityspace"},# aerospace, LA
+        {"name": "Shield AI",       "slug": "shieldai"},       # defense AI, SD
+        {"name": "Vannevar Labs",   "slug": "vannevarlabs"},   # defense AI, SD
+        {"name": "Kitware",         "slug": "kitware"},        # scientific computing
+        {"name": "TuSimple",        "slug": "tusimple"},       # autonomous, SD
+        {"name": "Terray Therapeutics","slug": "terraytherapeutics"},  # biotech AI
+        {"name": "Vividion Therapeutics","slug": "vividiontherapeutics"},
     ],
     "lever": [
         {"name": "Stripe",          "slug": "stripe"},
@@ -100,34 +124,55 @@ TARGET_COMPANIES = {
         {"name": "Vercel",          "slug": "vercel"},
         {"name": "Prefect",         "slug": "prefect"},
         {"name": "GoodLeap",        "slug": "goodleap"},
-        {"name": "ResMed",          "slug": "resmed"},
-        {"name": "Viasat",          "slug": "viasat"},
+        {"name": "Viasat",          "slug": "viasatcareers"},
+        # San Diego domain companies on Lever
+        {"name": "Provide Financial","slug": "xifin"},
+        {"name": "Artera AI",       "slug": "artera"},
+        {"name": "Neuralmagic",     "slug": "neuralmagic"},   # model optimization
+        {"name": "Syntiant",        "slug": "syntiant"},      # edge AI, Irvine
+        {"name": "Haivision",       "slug": "haivision"},
+        {"name": "Telnyx",          "slug": "telnyx"},
+        {"name": "Benchling",       "slug": "benchling"},     # biotech SaaS
+        {"name": "Veracyte",        "slug": "veracyte"},      # genomics, SD
+        {"name": "ViaCyte",         "slug": "viacyte"},
+        {"name": "Boundless Bio",   "slug": "boundlessbio"},
+        {"name": "Turning Point Therapeutics","slug": "turningpoint"},
     ],
     "workday": [
-        {"name": "Qualcomm",         "subdomain": "qualcomm",         "site_num": "5",  "tenant": "qualcomm_career"},
-        {"name": "Disney",           "subdomain": "disney",           "site_num": "5",  "tenant": "disneycareer"},
-        {"name": "Salesforce",       "subdomain": "salesforce",       "site_num": "12", "tenant": "External_Career_Site"},
-        {"name": "Adobe",            "subdomain": "adobe",            "site_num": "5",  "tenant": "external_corporate"},
-        {"name": "Palo Alto Networks","subdomain": "paloaltonetworks","site_num": "1",  "tenant": "PaloAltoNetworks"},
-        {"name": "ServiceNow",       "subdomain": "servicenow",       "site_num": "5",  "tenant": "servicenow"},
-        {"name": "Visa",             "subdomain": "visa",             "site_num": "5",  "tenant": "visa"},
-        {"name": "Intuit",           "subdomain": "intuit",           "site_num": "5",  "tenant": "careers"},
-        {"name": "Nvidia",           "subdomain": "nvidia",           "site_num": "5",  "tenant": "NVIDIAExternalCareerSite"},
-        {"name": "Cisco",            "subdomain": "cisco",            "site_num": "5",  "tenant": "Cisco"},
-        {"name": "Intel",            "subdomain": "intel",            "site_num": "5",  "tenant": "intel"},
-        {"name": "Oracle",           "subdomain": "oracle",           "site_num": "5",  "tenant": "oracle"},
-        {"name": "Uber",             "subdomain": "uber",             "site_num": "5",  "tenant": "uberats"},
-        {"name": "Airbnb",           "subdomain": "airbnb",           "site_num": "5",  "tenant": "Airbnb"},
-        {"name": "DoorDash",         "subdomain": "doordash",         "site_num": "5",  "tenant": "DoorDashUSA"},
-        {"name": "Lyft",             "subdomain": "lyft",             "site_num": "5",  "tenant": "lyft"},
-        {"name": "Snowflake",        "subdomain": "snowflake",        "site_num": "5",  "tenant": "Snowflake"},
-        {"name": "Workday",          "subdomain": "workday",          "site_num": "5",  "tenant": "workday"},
-        {"name": "SAP",              "subdomain": "sap",              "site_num": "5",  "tenant": "SAP"},
-        {"name": "CrowdStrike",      "subdomain": "crowdstrike",      "site_num": "5",  "tenant": "crowdstrike"},
-        {"name": "Okta",             "subdomain": "okta",             "site_num": "5",  "tenant": "okta"},
-        {"name": "Splunk",           "subdomain": "splunk",           "site_num": "5",  "tenant": "splunk"},
-        {"name": "Zendesk",          "subdomain": "zendesk",          "site_num": "5",  "tenant": "zendesk"},
-        {"name": "Atlassian",        "subdomain": "atlassian",        "site_num": "5",  "tenant": "atlassian"},
+        # Big tech (keep — good signal volume)
+        {"name": "Qualcomm",            "subdomain": "qualcomm",         "site_num": "5",  "tenant": "qualcomm_career"},
+        {"name": "Salesforce",          "subdomain": "salesforce",       "site_num": "12", "tenant": "External_Career_Site"},
+        {"name": "Adobe",               "subdomain": "adobe",            "site_num": "5",  "tenant": "external_corporate"},
+        {"name": "Palo Alto Networks",  "subdomain": "paloaltonetworks", "site_num": "1",  "tenant": "PaloAltoNetworks"},
+        {"name": "ServiceNow",          "subdomain": "servicenow",       "site_num": "5",  "tenant": "servicenow"},
+        {"name": "Visa",                "subdomain": "visa",             "site_num": "5",  "tenant": "visa"},
+        {"name": "Intuit",              "subdomain": "intuit",           "site_num": "5",  "tenant": "careers"},
+        {"name": "Nvidia",              "subdomain": "nvidia",           "site_num": "5",  "tenant": "NVIDIAExternalCareerSite"},
+        {"name": "Cisco",               "subdomain": "cisco",            "site_num": "5",  "tenant": "Cisco"},
+        {"name": "Snowflake",           "subdomain": "snowflake",        "site_num": "5",  "tenant": "Snowflake"},
+        {"name": "Zendesk",             "subdomain": "zendesk",          "site_num": "5",  "tenant": "zendesk"},
+        {"name": "Atlassian",           "subdomain": "atlassian",        "site_num": "5",  "tenant": "atlassian"},
+        {"name": "Splunk",              "subdomain": "splunk",           "site_num": "5",  "tenant": "splunk"},
+        # San Diego / North County mid-size — medical device, defense, biotech, healthtech
+        # ATEC Spine archetype: domain company adopting AI, 200-2000 employees
+        {"name": "Alphatec Spine",      "subdomain": "alphatec",         "site_num": "5",  "tenant": "alphatecspine"},
+        {"name": "ResMed",              "subdomain": "resmed",           "site_num": "5",  "tenant": "resmed"},
+        {"name": "Tandem Diabetes",     "subdomain": "tandemdiabetes",   "site_num": "5",  "tenant": "tandemdiabetes"},
+        {"name": "Nuvation Bio",        "subdomain": "nuvationbio",      "site_num": "5",  "tenant": "nuvationbio"},
+        {"name": "Illumina",            "subdomain": "illumina",         "site_num": "5",  "tenant": "illumina"},
+        {"name": "Viasat",              "subdomain": "viasat",           "site_num": "5",  "tenant": "viasat"},
+        {"name": "Leidos",              "subdomain": "leidos",           "site_num": "5",  "tenant": "leidos"},
+        {"name": "Booz Allen Hamilton", "subdomain": "bah",              "site_num": "5",  "tenant": "bah"},
+        {"name": "SAIC",                "subdomain": "saic",             "site_num": "5",  "tenant": "saic"},
+        {"name": "Cubic",               "subdomain": "cubic",            "site_num": "5",  "tenant": "cubic"},
+        {"name": "Dexcom",              "subdomain": "dexcom",           "site_num": "5",  "tenant": "dexcom"},
+        {"name": "Neurocrine",          "subdomain": "neurocrine",       "site_num": "5",  "tenant": "neurocrine"},
+        {"name": "Provide Financial",   "subdomain": "xifin",            "site_num": "5",  "tenant": "xifin"},
+        {"name": "Kyocera",             "subdomain": "kyoceraintl",      "site_num": "5",  "tenant": "kyoceraintl"},
+        {"name": "Sony",                "subdomain": "sonyglobal",       "site_num": "5",  "tenant": "sony"},
+        {"name": "Teradata",            "subdomain": "teradata",         "site_num": "5",  "tenant": "teradata"},
+        {"name": "Mitchell International","subdomain": "mitchell",       "site_num": "5",  "tenant": "mitchell"},
+        {"name": "Zurn Elkay",          "subdomain": "zurnelkay",        "site_num": "5",  "tenant": "zurnelkay"},
     ],
 }
 

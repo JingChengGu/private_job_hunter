@@ -51,6 +51,29 @@ US_CONFIRMED = [
     "atlanta, georgia","georgia, us","georgia, usa",
 ]
 
+# ── San Diego / domain company boost ─────────────────────────────────────────
+# These are mid-size domain companies (medical device, defense, biotech, healthtech)
+# adopting AI — the ATEC Spine archetype. Boost score +1 when matched.
+SD_DOMAIN_COMPANIES = [
+    "alphatec", "atec spine", "resmed", "dexcom", "tandem diabetes",
+    "illumina", "neurocrine", "viasat", "leidos", "booz allen", "saic",
+    "cubic", "xifin", "mitchell", "shield ai", "vannevar", "tusimple",
+    "artera", "benchling", "veracyte", "syntiant", "neuralmagic",
+    "kitware", "covariant", "mendaera", "axonics", "relativity space",
+    "terray", "vividion", "accolade", "collective health", "oura",
+    "hims", "sony", "kyocera", "teradata",
+]
+
+SD_LOCATIONS = [
+    "san diego", "carlsbad", "la jolla", "del mar", "solana beach",
+    "encinitas", "oceanside", "escondido", "el cajon", "chula vista",
+    "national city", "coronado", "santee", "poway", "miramar",
+    "sorrento valley", "torrey pines", "north county", "san marcos",
+    "vista", "camp pendleton",
+]
+
+
+
 
 def _is_us_location(location):
     if not location or location.strip() == "": return True
@@ -257,6 +280,17 @@ def _score_job(job):
 
     if matched_neg: reasons.append(f"Watch: {chr(44).join(matched_neg[:3])}")
     if not reasons: reasons.append("Keyword overlap with your technical profile")
+
+    # Boost for SD-area domain companies (ATEC Spine archetype)
+    company_lower = job.get("company","").lower()
+    if any(sd in company_lower for sd in SD_DOMAIN_COMPANIES):
+        score = min(10, score + 1)
+        if "Domain company adopting AI" not in " ".join(reasons):
+            reasons.insert(0, "Domain company adopting AI (ATEC Spine archetype) — high callback potential")
+
+    # Boost for San Diego location
+    if any(sd in location.lower() for sd in SD_LOCATIONS):
+        score = min(10, score + 0.5)
 
     score   = max(1, min(10, round(score)))
     variant = _pick_variant(title)
