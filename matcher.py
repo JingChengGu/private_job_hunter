@@ -78,13 +78,19 @@ SD_LOCATIONS = [
 def _is_us_location(location):
     if not location or location.strip() == "": return True
     loc = " " + location.lower() + " "
-    for sig in HARD_NON_US:
-        if sig in loc: return False
-    for sig in US_CONFIRMED:
-        if sig in loc: return True
-    if re.search(r",\s*(ca|ny|tx|wa|il|ma|co|ga|fl|or|nv|az|nc|va|ut|mn|wi|in|tn|md|nj|pa)\s*$", location.lower()):
-        return True
-    return False
+
+    # Multi-city strings: if ANY non-US city appears anywhere, flag for review
+    # but only reject if there is NO US signal at all OR if it is purely non-US
+    has_non_us = any(sig in loc for sig in HARD_NON_US)
+    has_us     = (any(sig in loc for sig in US_CONFIRMED) or
+                  bool(re.search(r",\s*(ca|ny|tx|wa|il|ma|co|ga|fl|or|nv|az|nc|va|ut|mn|wi|in|tn|md|nj|pa)\s*$",
+                                 location.lower())))
+
+    if has_non_us and not has_us:
+        return False      # purely non-US
+    if has_us:
+        return True       # has at least one US location — role is open to US
+    return False          # no signal either way — assume non-US
 
 
 HOLD_COMBOS = [
@@ -292,6 +298,10 @@ def _score_job(job):
     if any(sd in location.lower() for sd in SD_LOCATIONS):
         score = min(10, score + 0.5)
 
+    # Require at least 1 description keyword match to score above 5
+    # Prevents title-only scores from hitting 6+ and entering the inbox
+    if not matched_pos and score <= 5:
+        return None   # skip entirely — not enough signal
     score   = max(1, min(10, round(score)))
     variant = _pick_variant(title)
     return {
