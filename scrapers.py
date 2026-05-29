@@ -223,3 +223,51 @@ def fetch_workday(subdomain: str, site_num: str, tenant: str,
             })
 
     return jobs
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# WORKABLE
+# ══════════════════════════════════════════════════════════════════════════════
+
+def fetch_workable(company_slug: str, company_name: str) -> list[dict]:
+    """
+    Public Workable API — no auth needed.
+    URL: https://apply.workable.com/{slug}
+    API: https://www.workable.com/api/accounts/{slug}/jobs
+    """
+    url = f"https://www.workable.com/api/accounts/{company_slug}/jobs"
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        log.warning("Workable fetch failed for %s: %s", company_slug, e)
+        return []
+
+    jobs = []
+    for j in data.get("results", []):
+        posted_date = j.get("published_on", "")[:10] if j.get("published_on") else ""
+        
+        loc_parts = []
+        if j.get("city"):    loc_parts.append(j["city"])
+        if j.get("state"):   loc_parts.append(j["state"])
+        if j.get("country"): loc_parts.append(j["country"])
+        location = ", ".join(filter(None, loc_parts)) or j.get("location", {}).get("location_str", "")
+        
+        apply_url = j.get("url", "") or f"https://apply.workable.com/{company_slug}/j/{j.get('shortcode','')}"
+        
+        desc_html = j.get("description", "") or ""
+        desc_req  = j.get("requirements", "") or ""
+        description = _clean_html(desc_html + " " + desc_req)[:4000]
+
+        jobs.append({
+            "id":          f"wb_{company_slug}_{j.get('shortcode', j.get('id',''))}",
+            "company":     company_name,
+            "title":       j.get("title", ""),
+            "location":    location,
+            "url":         apply_url,
+            "salary":      "",
+            "posted_date": posted_date,
+            "description": description,
+        })
+    return jobs

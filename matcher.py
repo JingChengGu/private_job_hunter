@@ -75,22 +75,61 @@ SD_LOCATIONS = [
 
 
 
+# Strong US signals = actual cities/states — used for multi-city exception
+STRONG_US = [
+    "san diego","san francisco","los angeles","new york city","nyc","new york, ny",
+    "seattle","austin","boston","chicago","denver","atlanta","miami","san jose",
+    "mountain view","palo alto","santa clara","sunnyvale","cupertino","burbank",
+    "irvine","san mateo","bellevue","kirkland","portland","salt lake city","phoenix",
+    "dallas","houston","raleigh","charlotte","nashville","minneapolis","detroit",
+    "brooklyn","san antonio","sacramento","redwood city","menlo park",
+    "california","new york state","texas","washington state","illinois",
+    "massachusetts","colorado","florida","oregon","nevada","arizona",
+    "north carolina","south carolina","virginia","michigan","ohio","utah",
+    "minnesota","wisconsin","tennessee","maryland","new jersey","pennsylvania",
+    "united states","usa","u.s.","work from home","nationwide","anywhere in the us",
+    "atlanta, georgia","georgia, us",
+    ", ca ",", ca,",", ca."," ca,",", ny ",", ny,",", tx ",", tx,",
+    ", wa ",", wa,",", il ",", il,",", ma ",", ma,",", co ",", co,",
+    ", fl ",", fl,",", or ",", or,",", nv ",", nv,",", az ",", az,",
+    ", nc ",", nc,",", va ",", va,",
+]
+
+
 def _is_us_location(location):
-    if not location or location.strip() == "": return True
+    """
+    Non-US check runs FIRST, unconditionally.
+    'Remote - India' -> has_non_us=True, no STRONG US signal -> False
+    'NY, SF, Sao Paulo' -> has_non_us=True, has STRONG US signal -> True (multi-city role)
+    'Remote' -> no non-US, has weak US -> True
+    """
+    if not location or location.strip() == "":
+        return True
+
     loc = " " + location.lower() + " "
 
-    # Multi-city strings: if ANY non-US city appears anywhere, flag for review
-    # but only reject if there is NO US signal at all OR if it is purely non-US
-    has_non_us = any(sig in loc for sig in HARD_NON_US)
-    has_us     = (any(sig in loc for sig in US_CONFIRMED) or
-                  bool(re.search(r",\s*(ca|ny|tx|wa|il|ma|co|ga|fl|or|nv|az|nc|va|ut|mn|wi|in|tn|md|nj|pa)\s*$",
-                                 location.lower())))
+    has_non_us    = any(sig in loc for sig in HARD_NON_US)
+    has_strong_us = (any(sig in loc for sig in STRONG_US) or
+                     bool(re.search(r",\s*(ca|ny|tx|wa|il|ma|co|ga|fl|or|nv|az|nc|va|ut|mn|wi|in|tn|md|nj|pa)\s*$",
+                                    location.lower())))
+    has_weak_us   = "remote" in loc or "work from home" in loc
 
-    if has_non_us and not has_us:
-        return False      # purely non-US
-    if has_us:
-        return True       # has at least one US location — role is open to US
-    return False          # no signal either way — assume non-US
+    # Non-US present + no strong US city/state = reject
+    # (catches "Remote - India", "Poland Remote", "India Remote")
+    if has_non_us and not has_strong_us:
+        return False
+
+    # Strong US city/state present = accept
+    # (catches multi-city "NY, SF, Sao Paulo" — role is open to US)
+    if has_strong_us:
+        return True
+
+    # Weak US signal only ("Remote", "Work from Home") with no non-US = accept
+    if has_weak_us:
+        return True
+
+    # No signal = reject
+    return False
 
 
 HOLD_COMBOS = [
@@ -298,10 +337,13 @@ def _score_job(job):
     if any(sd in location.lower() for sd in SD_LOCATIONS):
         score = min(10, score + 0.5)
 
-    # Require at least 1 description keyword match to score above 5
-    # Prevents title-only scores from hitting 6+ and entering the inbox
-    if not matched_pos and score <= 5:
-        return None   # skip entirely — not enough signal
+    # Quality gate: require meaningful description match
+    # Title-only matches never reach inbox (no skills = noise)
+    if not matched_pos:
+        return None   # zero description keywords = skip entirely
+    # Require 2+ keywords for score to count as 6+
+    if len(matched_pos) < 2 and score < 8:
+        return None
     score   = max(1, min(10, round(score)))
     variant = _pick_variant(title)
     return {

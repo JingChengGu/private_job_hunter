@@ -99,13 +99,22 @@ TARGET_COMPANIES = {
         # dexcom.wd1.myworkdayjobs.com/Dexcom ✅
         {"name": "Dexcom",              "subdomain": "dexcom",          "site_num": "1",  "tenant": "Dexcom"},
         # alphatecspine.wd1.myworkdayjobs.com (ATEC Spine) — verify
-        {"name": "Alphatec Spine",      "subdomain": "alphatecspine",   "site_num": "1",  "tenant": "alphatecspine"},
         {"name": "Illumina",            "subdomain": "illumina",        "site_num": "5",  "tenant": "illumina"},
         {"name": "Leidos",              "subdomain": "leidos",          "site_num": "5",  "tenant": "leidos"},
         {"name": "Booz Allen Hamilton", "subdomain": "bah",             "site_num": "5",  "tenant": "bah"},
         {"name": "SAIC",                "subdomain": "saic",            "site_num": "5",  "tenant": "saic"},
         {"name": "Viasat",              "subdomain": "viasat",          "site_num": "5",  "tenant": "viasat"},
-        {"name": "Tandem Diabetes",     "subdomain": "tandemdiabetes",  "site_num": "5",  "tenant": "tandemdiabetes"},
+        {"name": "Tandem Diabetes",     "subdomain": "tandemdiabetes",  "site_num": "12", "tenant": "tandemdiabetes"},  # verified ✅
+    ],
+
+    "workable": [
+        # SD domain companies confirmed on Workable
+        {"name": "Alphatec Spine",    "slug": "atec-spine"},       # verified ✅ apply.workable.com/atec-spine
+        {"name": "Nuvation Bio",      "slug": "nuvation-bio"},
+        {"name": "Artera Health",     "slug": "artera"},
+        {"name": "Vividion",          "slug": "vividion-therapeutics"},
+        {"name": "Solv Health",       "slug": "solv"},
+        {"name": "Sorrento Therapeutics","slug": "sorrento"},
     ],
 }
 
@@ -150,7 +159,7 @@ TITLE_EXCLUDE_KEYWORDS = [
 ]
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
-MIN_MATCH_SCORE  = 6
+MIN_MATCH_SCORE  = 7
 MAX_YOE_REQUIRED = 5
 LOOKBACK_DAYS    = 9   # 9 calendar days = 5 full business days
 

@@ -117,6 +117,15 @@ def fetch_all(company_filter: str = "") -> list[dict]:
         log.info("  → %d jobs returned", len(jobs))
         all_jobs.extend(jobs)
 
+    # — Workable —
+    for co in TARGET_COMPANIES.get("workable", []):
+        if company_filter and company_filter.lower() not in co["name"].lower():
+            continue
+        log.info("Fetching Workable: %s", co["name"])
+        jobs = scrapers.fetch_workable(co["slug"], co["name"])
+        log.info("  -> %d jobs returned", len(jobs))
+        all_jobs.extend(jobs)
+
     # — Lever —
     for co in TARGET_COMPANIES.get("lever", []):
         if company_filter and company_filter.lower() not in co["name"].lower():
