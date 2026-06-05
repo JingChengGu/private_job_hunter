@@ -106,3 +106,26 @@ def get_recent_jobs(days: int = 7):
             WHERE found_date >= date('now', ?)
             ORDER BY score DESC, found_date DESC
         """, (f"-{days} days",)).fetchall()
+
+
+def company_last_seen(company: str) -> str | None:
+    """Returns the date string when this company last appeared in email, or None."""
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT MAX(found_date) FROM seen_jobs WHERE LOWER(company) = LOWER(?)",
+            (company,)
+        ).fetchone()
+        return row[0] if row and row[0] else None
+
+
+def company_on_cooldown(company: str, cooldown_days: int = 3) -> bool:
+    """True if this company appeared in results within the last cooldown_days."""
+    from datetime import datetime, timedelta
+    last = company_last_seen(company)
+    if not last:
+        return False
+    try:
+        last_dt = datetime.strptime(last, "%Y-%m-%d")
+        return (datetime.utcnow() - last_dt).days < cooldown_days
+    except ValueError:
+        return False

@@ -16,6 +16,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 
 import database as db
+from config import COMPANY_COOLDOWN_DAYS
 import scrapers
 from config import (
     TARGET_COMPANIES,
@@ -43,6 +44,29 @@ log = logging.getLogger(__name__)
 
 
 # ── Filtering helpers ─────────────────────────────────────────────────────────
+
+def _is_ca_or_ny(location: str) -> bool:
+    """True if location is in California, New York, or remote/US-wide."""
+    if not location:
+        return True   # unknown — let matcher decide
+    loc = location.lower()
+    # Remote / nationwide = allow
+    if any(s in loc for s in ["remote", "united states", "usa", "u.s.", "nationwide",
+                               "work from home", "anywhere"]):
+        return True
+    # Explicitly CA
+    if any(s in loc for s in ["california", "san francisco", "los angeles", "san diego",
+                               "san jose", "palo alto", "mountain view", "santa clara",
+                               "sunnyvale", "cupertino", "oakland", "berkeley",
+                               "irvine", "burbank", "pasadena", "carlsbad", "sorrento",
+                               "la jolla", ", ca", "ca,", "ca."]):
+        return True
+    # Explicitly NY
+    if any(s in loc for s in ["new york", "nyc", "brooklyn", "manhattan", "bronx",
+                               "queens", ", ny", "ny,", "ny."]):
+        return True
+    return False
+
 
 def _title_passes(title: str) -> bool:
     """True if title matches at least one include keyword and no exclude keywords."""
@@ -178,6 +202,14 @@ def run(dry_run: bool = False, company_filter: str = ""):
             continue
         if _too_senior(job.get("description", "")):
             log.debug("Too senior, skipping: %s @ %s", job["title"], job["company"])
+            continue
+        # CA / NY only filter
+        if not _is_ca_or_ny(job.get("location", "")):
+            log.debug("Not CA/NY, skipping: %s @ %s (%s)", job["title"], job["company"], job.get("location",""))
+            continue
+        # Company cooldown — same company max once every N days
+        if db.company_on_cooldown(job["company"], COMPANY_COOLDOWN_DAYS):
+            log.debug("Company on cooldown: %s", job["company"])
             continue
         candidates.append(job)
 
