@@ -52,6 +52,20 @@ TARGET_COMPANIES = {
         {"name": "Observe.AI",          "slug": "observeai"},
         {"name": "Vectara",             "slug": "vectara"},
 
+        # Enterprise SaaS / AI tools — verified slugs, solutions engineer roles common
+        {"name": "Intercom",            "slug": "intercom"},
+        {"name": "Asana",               "slug": "asana"},
+        {"name": "Dialpad",             "slug": "dialpad"},
+        {"name": "Sigma Computing",     "slug": "sigmacomputing"},
+        {"name": "Klaviyo",             "slug": "klaviyo"},
+        {"name": "Iterable",            "slug": "iterable"},
+        {"name": "Qualtrics",           "slug": "qualtrics"},
+        {"name": "Zuora",               "slug": "zuora"},
+        {"name": "Together AI",         "slug": "togetherai"},
+        {"name": "HeyGen",              "slug": "heygen"},
+        {"name": "Otter.ai",            "slug": "otter"},
+        {"name": "Descript",            "slug": "descript"},
+
         # Data infrastructure
         {"name": "dbt Labs",            "slug": "dbtlabs"},
         {"name": "Airbyte",             "slug": "airbyte"},
@@ -79,7 +93,6 @@ TARGET_COMPANIES = {
 
         # SaaS / enterprise software
         {"name": "Rippling",            "slug": "rippling"},
-        {"name": "Brex",                "slug": "brex"},
         {"name": "Lattice",             "slug": "lattice"},
         {"name": "Gusto",               "slug": "gusto"},
         {"name": "Retool",              "slug": "retool"},
@@ -167,7 +180,6 @@ TARGET_COMPANIES = {
         {"name": "project44",           "slug": "project44"},
 
         # SD domain companies
-        {"name": "Vannevar Labs",       "slug": "vannevarlabs"},
         {"name": "Samsara",             "slug": "samsara"},
         {"name": "Discord",             "slug": "discord"},
         {"name": "Okta",                "slug": "okta"},
@@ -226,6 +238,7 @@ TARGET_COMPANIES = {
         {"name": "Encord",              "slug": "CordTechnologies"},
         {"name": "Aircall",             "slug": "aircall"},
         {"name": "Agiloft",             "slug": "agiloft"},
+        {"name": "Freshworks",          "slug": "freshworks"},
     ],
 
     # ── WORKDAY ───────────────────────────────────────────────────────────────
@@ -393,9 +406,9 @@ TITLE_EXCLUDE_KEYWORDS = [
 ]
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
-MIN_MATCH_SCORE      = 7
+MIN_MATCH_SCORE      = 6
 MAX_YOE_REQUIRED     = 5
-LOOKBACK_DAYS        = 9    # 9 calendar days = 5 full business days
+LOOKBACK_DAYS        = 14   # 14 calendar days = 10 business days
 COMPANY_COOLDOWN_DAYS = 3   # same company won't appear more than once every 3 days
 
 # ── Location scope ────────────────────────────────────────────────────────────
