@@ -164,6 +164,15 @@ def _is_on_hold(job):
     return False
 
 
+# Highest-priority target roles — score +5.0 base (vs +3.5 for TITLE_STRONG)
+TITLE_PRIORITY = [
+    "forward deployed engineer",
+    "forward deployed",
+    "ai solutions engineer",
+    "ai sales engineer",
+    "sales engineer",
+]
+
 TITLE_STRONG = [
     "ml engineer","mlops engineer","ai/ml engineer",
     "applied ai engineer","applied ml engineer",
@@ -172,7 +181,7 @@ TITLE_STRONG = [
     "software engineer, ai","software engineer - ai","software engineer ai",
     "software engineer, ml","software engineer - ml","software engineer ml",
     "backend engineer, ml","backend engineer - ml","backend engineer ml",
-    "ai solutions engineer","ai implementation engineer",
+    "ai implementation engineer",
     "technical customer success engineer",
     "business operations analyst","engineering operations analyst",
     "technical operations analyst","operations analyst",
@@ -180,7 +189,6 @@ TITLE_STRONG = [
     "sales operations analyst","data operations analyst",
     "product operations analyst","business intelligence analyst",
     "business systems analyst",
-    "forward deployed engineer","forward deployed",
     "implementation engineer","solutions engineer",
     "ai analyst","applied ai",
 ]
@@ -246,6 +254,7 @@ VARIANT_MAP = {
     "nlp":"data_science","data engineer":"data_science",
     "analytics engineer":"data_science",
     "ai solutions":"ai_solutions","ai analyst":"ai_solutions",
+    "ai sales":"ai_solutions","sales engineer":"ai_solutions",
     "forward deployed":"ai_solutions","implementation":"ai_solutions",
     "solutions engineer":"ai_solutions","gtm":"ai_solutions",
     "revenue operations":"ai_solutions","sales operations":"ai_solutions",
@@ -295,13 +304,12 @@ def _score_job(job):
     score    = 0.0
     reasons  = []
 
-    for kw in TITLE_STRONG:
-        if kw in title_l:
-            score += 3.5; reasons.append("Title is a strong match for your target role type"); break
-    else:
-        for kw in TITLE_MODERATE:
-            if kw in title_l:
-                score += 1.5; reasons.append("Title is a reasonable fit"); break
+    if any(kw in title_l for kw in TITLE_PRIORITY):
+        score += 5.0; reasons.append("Priority target role: forward deployed / AI solutions / AI sales")
+    elif any(kw in title_l for kw in TITLE_STRONG):
+        score += 3.5; reasons.append("Title is a strong match for your target role type")
+    elif any(kw in title_l for kw in TITLE_MODERATE):
+        score += 1.5; reasons.append("Title is a reasonable fit")
 
     matched_pos, matched_neg = [], []
     for kw, pts in DESC_POSITIVE.items():

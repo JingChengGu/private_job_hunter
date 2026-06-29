@@ -333,6 +333,9 @@ TARGET_COMPANIES = {
 
 # ── Search keywords (Workday) ─────────────────────────────────────────────────
 SEARCH_KEYWORDS = [
+    "forward deployed engineer",
+    "AI solutions engineer",
+    "AI sales engineer",
     "AI engineer",
     "machine learning engineer",
     "applied AI",
@@ -341,7 +344,6 @@ SEARCH_KEYWORDS = [
     "data analyst",
     "data scientist",
     "solutions engineer",
-    "forward deployed",
     "AI implementation",
     "business operations",
     "analytics engineer",
@@ -357,6 +359,7 @@ TITLE_INCLUDE_KEYWORDS = [
     "ai implementation", "solutions engineer", "forward deployed",
     "implementation", "machine learning", "ml engineer", "mlops",
     "applied ai", "software engineer",
+    "ai sales engineer", "sales engineer",
 ]
 
 TITLE_EXCLUDE_KEYWORDS = [
