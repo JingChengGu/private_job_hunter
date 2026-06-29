@@ -62,6 +62,9 @@ SD_DOMAIN_COMPANIES = [
     "kitware", "covariant", "mendaera", "axonics", "relativity space",
     "terray", "vividion", "accolade", "collective health", "oura",
     "hims", "sony", "kyocera", "teradata",
+    # AI solutions / FDE-focused companies
+    "instabase", "labelbox", "observe.ai", "observeai", "aisera",
+    "vectara", "invisible technologies", "hive ai", "encord", "aircall", "agiloft",
 ]
 
 SD_LOCATIONS = [
@@ -170,7 +173,6 @@ TITLE_PRIORITY = [
     "forward deployed",
     "ai solutions engineer",
     "ai sales engineer",
-    "sales engineer",
 ]
 
 TITLE_STRONG = [
@@ -201,7 +203,6 @@ TITLE_MODERATE = [
     "technical analyst","product analyst",
     "machine learning","ml platform",
     "ai engineer","nlp engineer",
-    "software engineer","solutions architect",
 ]
 
 TITLE_SENIOR_REJECT = [
@@ -211,26 +212,33 @@ TITLE_SENIOR_REJECT = [
 ]
 
 DESC_POSITIVE = {
-    "python":2.0,"sql":1.5,"tableau":1.5,"power bi":1.5,
-    "pandas":1.5,"etl":1.5,"airflow":1.5,
-    "dashboard":1.0,"pipeline":1.0,"kpi":1.0,"reporting":1.0,
+    # Generic coding — lowered to reduce inflation on generic SWE/infra roles
+    "python":0.75,"sql":0.75,"pandas":1.0,"etl":0.75,"airflow":1.5,
+    # Visualization / BI — these are specific to data roles, keep higher
+    "tableau":1.5,"power bi":1.5,
+    # Data work signals
+    "dashboard":1.0,"kpi":1.0,"reporting":1.0,
     "data quality":1.0,"data validation":1.0,
     "cross-functional":1.5,"stakeholder":1.0,
     "business operations":1.5,"process improvement":1.5,
+    # AI/ML — keep high, these are target skills
     "llm":2.0,"large language model":2.0,"generative ai":2.0,
     "ai agent":2.0,"prompt engineering":1.5,
     "fine-tuning":1.5,"fine tuning":1.5,
     "pytorch":2.0,"tensorflow":1.5,"transformers":1.5,
-    "hugging face":1.5,"inference":2.0,"deployment":1.5,
+    "hugging face":1.5,"inference":2.0,
     "model serving":2.0,"model optimization":2.0,
     "mlops":2.0,"ml pipeline":2.0,"ml platform":2.0,
     "vector database":1.5,"embeddings":1.5,
     "scikit":1.0,"xgboost":1.0,
-    "docker":1.0,"aws":0.5,"google cloud":0.5,
-    "fastapi":1.0,"rest api":1.0,
     "machine learning":1.5,"deep learning":1.5,
-    "automation":1.0,"workflow automation":1.5,
-    "implementation":1.0,"production":1.0,
+    "workflow automation":1.5,
+    # Infrastructure / generic — lowered heavily, appear in any SWE job
+    "pipeline":0.25,"deployment":0.25,"production":0.25,
+    "docker":0.25,"aws":0.25,"google cloud":0.25,
+    "fastapi":0.5,"rest api":0.5,
+    "automation":0.25,"implementation":0.25,
+    # Soft signals
     "excel":0.5,"data visualization":0.5,"a/b test":0.5,
     "analytics":0.5,"forecasting":0.5,
 }
@@ -250,6 +258,7 @@ VARIANT_MAP = {
     "ai/ml":"data_science","applied ai":"data_science",
     "applied ml":"data_science","ai platform":"data_science",
     "ai infrastructure":"data_science","machine learning":"data_science",
+    "ai engineer":"data_science",
     "software engineer":"data_science","backend engineer":"data_science",
     "nlp":"data_science","data engineer":"data_science",
     "analytics engineer":"data_science",

@@ -43,6 +43,15 @@ TARGET_COMPANIES = {
         {"name": "Baseten",             "slug": "baseten"},
         {"name": "Modal Labs",          "slug": "modal"},
 
+        # FDE / AI solutions focus (Bay Area) — added after research
+        {"name": "xAI",                 "slug": "xai"},
+        {"name": "Instabase",           "slug": "instabase"},
+        {"name": "Labelbox",            "slug": "labelbox"},
+        {"name": "Invisible Technologies", "slug": "invisibletech"},
+        {"name": "Aisera",              "slug": "aiserajobs"},
+        {"name": "Observe.AI",          "slug": "observeai"},
+        {"name": "Vectara",             "slug": "vectara"},
+
         # Data infrastructure
         {"name": "dbt Labs",            "slug": "dbtlabs"},
         {"name": "Airbyte",             "slug": "airbyte"},
@@ -211,6 +220,12 @@ TARGET_COMPANIES = {
         {"name": "HackerOne",           "slug": "hackerone"},
         {"name": "Abnormal Security",   "slug": "abnormalsecurity"},
         {"name": "Lacework",            "slug": "lacework"},
+
+        # FDE / AI solutions focus (Bay Area) — added after research
+        {"name": "Hive AI",             "slug": "hive"},
+        {"name": "Encord",              "slug": "CordTechnologies"},
+        {"name": "Aircall",             "slug": "aircall"},
+        {"name": "Agiloft",             "slug": "agiloft"},
     ],
 
     # ── WORKDAY ───────────────────────────────────────────────────────────────
@@ -373,6 +388,8 @@ TITLE_EXCLUDE_KEYWORDS = [
     "research scientist",
     "solutions architect",
     "specialist solutions",
+    "creative strategist", "strategist",
+    "security sales",
 ]
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
